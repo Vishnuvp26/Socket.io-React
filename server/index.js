@@ -1,17 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const http = require('http');
 const cors = require('cors');
 const { Server } = require("socket.io");
 
+const PORT = process.env.PORT
+
 app.use(cors());
 
 const server = http.createServer(app);
 
-// CORS setup
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",  // Ensure this matches your frontend port
+        origin: process.env.CLIENT_URL,
         methods: ['GET', 'POST']
     }
 });
@@ -28,7 +30,7 @@ io.on('connection', (socket) => {
     // Handle sending messages
     socket.on('send_message', (data) => {
         console.log('Message received:', data);
-        io.in(data.room).emit('receive_message', data);  // Broadcast to all users in the room
+        io.in(data.room).emit('receive_message', data);
     });
 
     // Handle user disconnect
@@ -37,6 +39,6 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3000, () => {
-    console.log('Server running on port 3000...');
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}...`);
 });
